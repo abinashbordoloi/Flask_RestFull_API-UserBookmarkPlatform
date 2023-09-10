@@ -3,10 +3,13 @@ from  werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
 import validators
 from src.database import User,db
-
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+
 auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
+
+
+#for registerinig a new user
 @auth.post("/register")
 def register():
     username = request.json['username']
@@ -44,7 +47,7 @@ def register():
 
                 
  
-
+#for logging in a user and getting tokens for both access and refresh
 @auth.post('/login')
 def login():
     email = request.json.get('email', "")
@@ -67,7 +70,7 @@ def login():
                        
 
 
-
+#to get the current logged in user using the access token
 @auth.get("/me")
 @jwt_required()
 def me():
@@ -83,6 +86,7 @@ def me():
   
 
 
+#to get a new access token using the refresh token
 @auth.get('/token/refresh')
 @jwt_required(refresh=True)
 def refresh_users_tokens():
