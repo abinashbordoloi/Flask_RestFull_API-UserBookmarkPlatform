@@ -71,5 +71,13 @@ def login():
 @auth.get("/me")
 @jwt_required()
 def me():
+
+    user_id = get_jwt_identity()
     
-    return {'user': 'me'}
+
+    user = User.query.filter_by(id=user_id).first()
+
+    return jsonify({'current_login_user': {'username': user.username,
+                                'email': user.email}})
+
+  
