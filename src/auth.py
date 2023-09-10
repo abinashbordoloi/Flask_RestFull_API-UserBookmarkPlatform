@@ -3,6 +3,8 @@ from  werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
 import validators
 from src.database import User,db
+
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
 auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 @auth.post("/register")
@@ -41,7 +43,32 @@ def register():
                     }})
 
                 
+ 
+
+@auth.post('/login')
+def login():
+    email = request.json.get('email', "")
+    password = request.json.get('password', "")
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        valid_password = check_password_hash(user.password, password)
+        if valid_password:
+            refresh = create_refresh_token(identity=user.id)
+            access  = create_access_token (identity=user.id)
+            return jsonify({'message': 'Login Successful',
+                            "tokens":{ 'refresh': refresh,
+                            'access': access},
+                            'user_details': {'username': user.username,
+                            'email': user.email}})
+        else:
+            return jsonify({'error': 'Invalid Password'})
+  
+                       
+
+
 
 @auth.get("/me")
+@jwt_required()
 def me():
     return {'user': 'me'}
