@@ -4,7 +4,7 @@ from flask import jsonify
 import validators
 from src.database import User,db
 
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 auth = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 @auth.post("/register")
@@ -71,4 +71,5 @@ def login():
 @auth.get("/me")
 @jwt_required()
 def me():
+    
     return {'user': 'me'}
