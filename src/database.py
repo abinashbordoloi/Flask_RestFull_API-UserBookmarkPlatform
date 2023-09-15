@@ -34,6 +34,9 @@ class Bookmark(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime,onupdate=datetime.now())
 
+
+    
+
     def generate_short_characters(self):
         characters = string.digits + string.ascii_letters
         picked_chars = ''.join(random.choices(characters,k =3))
