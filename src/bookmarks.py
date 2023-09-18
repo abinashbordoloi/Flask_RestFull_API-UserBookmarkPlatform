@@ -59,8 +59,7 @@ def handle_bookmarks():
         return jsonify({'bookmarks': data, "meta": meta})
 
 
-
-#for getting a single bookmark with the id
+# for getting a single bookmark with the id
 @bookmarks.get("/<int:id>")
 @jwt_required()
 def get_bookmarks(id):
@@ -71,3 +70,29 @@ def get_bookmarks(id):
         return jsonify({'message': 'Bookmark not found'})
 
     return jsonify({'id': bookmark.id, 'url': bookmark.url, 'short_url': bookmark.short_url, 'visits': bookmark.visits, 'body': bookmark.body, 'created_at': bookmark.created_at, 'updated_at': bookmark.updated_at})
+
+
+
+
+#for editing a bookmark
+@bookmarks.put('/<int:id>')
+@bookmarks.patch('/<int:id>')
+@jwt_required()
+def edit_bookmark(id):
+    current_user = get_jwt_identity()
+    bookmark = Bookmark.query.filter_by(
+        id=id, user_id=current_user).first()
+
+    if not bookmark:
+        return jsonify({'message': 'Bookmark not found'})
+
+    body = request.get_json().get('body', '')
+    url = request.get_json().get('url', '')
+
+    if not validators.url(url):
+        return jsonify({'error': 'Invalid URL'})
+
+    bookmark.url = url
+    bookmark.body = body
+    db.session.commit()
+    return jsonify({'message': 'Bookmark updated', 'details': {'id': bookmark.id, 'url': bookmark.url, 'short_url': bookmark.short_url, 'visits': bookmark.visits, 'body': bookmark.body, 'created_at': bookmark.created_at, 'updated_at': bookmark.updated_at}})
